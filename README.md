@@ -42,7 +42,7 @@ A powerful, privacy-first desktop AI agent that searches your local files and an
    ```powershell
    # Double-click START.bat  
    # OR
-   .\START.ps1
+   .\START.bat
    ```
 
 That's it! Your browser will open to `http://localhost:3000`
