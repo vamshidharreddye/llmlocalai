@@ -5,18 +5,15 @@ import Sources from './components/Sources'
 const API_BASE = 'http://127.0.0.1:8000'
 
 export default function App() {
-  const [messages, setMessages] = useState([])
+  const [messages, setMessages] = useState([
+    {
+      role: 'assistant',
+      content: `<div class="greeting-block"><strong style="font-size:18px;display:block;margin-bottom:10px">Hello — I'm your Local AI Assistant.</strong><div style="font-size:13px;color:#0b1220;line-height:1.5">I can search your files, summarize PDFs and text files, preview documents, and open files on your computer. Ask me anything about your files or just chat with me about general topics.</div></div>`
+    }
+  ])
   const [sources, setSources] = useState([])
   const [status, setStatus] = useState('')
   const [model, setModel] = useState('')
-
-  useEffect(() => {
-    // initial assistant welcome — single centered vertical block, no timestamp
-    setMessages(m => [...m, { 
-      role: 'assistant', 
-      content: '<div class="greeting-block"><strong style="font-size:18px;display:block;margin-bottom:10px">Hello — I\'m your Local AI Assistant.</strong><div style="font-size:13px;color:#0b1220;line-height:1.5">I can search your files, summarize PDFs and text files, preview documents, and open files on your computer. Ask me anything about your files or just chat with me about general topics.</div></div>'
-    }])
-  }, [])
 
   useEffect(() => {
     // health check

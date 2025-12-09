@@ -1076,21 +1076,21 @@ async def api_analyze_file(req: FileRequest):
 @app.get("/list-all-files")
 async def list_all_files():
     """
-    Return all indexed files in a readable format.
+    Return ALL indexed files as a simple list.
+    Frontend can call this when user types 'files' / 'list all files'.
     """
-    files = []
-    for entry in FILE_INDEX:
-        files.append({
-            "path": entry["path"],
-            "name": entry["basename"],
-            "directory": entry["directory"],
-            "type": entry["kind"],
-            "created": entry["created"],
-            "modified": entry["modified"],
-            "size_bytes": entry["size_bytes"],
+    results = []
+    for e in FILE_INDEX:
+        results.append({
+            "path": e["path"],
+            "name": e["basename"],
+            "directory": e["directory"],
+            "type": e["kind"],
+            "created": e["created"],
+            "modified": e["modified"],
+            "size_bytes": e["size_bytes"],
         })
-    return {"count": len(files), "files": files}
-
+    return results
 
 @app.get("/stats")
 async def stats():

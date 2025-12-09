@@ -78,9 +78,16 @@
                             headers: { 'Content-Type': 'application/json' }
                         });
                         const data = await resp.json();
-                        const table = buildFileTable(data.files || []);
-                        replaceLastAssistant(`Found ${data.count || 0} readable files:\n\n` + table);
-                        setSourceList(data.files || []);
+
+                        // Handle both shapes:
+                        //  - { count, files: [...] }
+                        //  - [ ... ]
+                        const files = Array.isArray(data) ? data : (data.files || []);
+                        const count = Array.isArray(data) ? files.length : (data.count || files.length);
+
+                        const table = buildFileTable(files);
+                        replaceLastAssistant(`Found ${count} readable files:\n\n` + table);
+                        setSourceList(files);
                     } else {
                         const resp = await fetch(`${apiBase}/ask`, {
                             method: 'POST',
@@ -115,26 +122,89 @@
             return (
                 <div className="chat-panel">
                     <div className="messages">
-                        {messages.map((m, i) => {
-                            const lastUserIndex = messages.map((x, idx) => x.role === 'user' ? idx : -1).filter(x => x >= 0).pop();
-                            const isLastUserMsg = m.role === 'user' && i === lastUserIndex;
-                            return (
-                                <div key={i} className={`message ${m.role}`}>
-                                    <div className="message-content-wrapper">
-                                        <div className="message-bubble">
-                                            <div className="message-content">{m.content}</div>
+                        {(() => {
+                            // compute last user index once
+                            const lastUserIndex = (() => {
+                                let idx = -1;
+                                for (let j = messages.length - 1; j >= 0; j--) {
+                                    if (messages[j].role === 'user') {
+                                        idx = j;
+                                        break;
+                                    }
+                                }
+                                return idx;
+                            })();
+
+                            function stripHtml(html) {
+                                if (!html) return '';
+                                return String(html).replace(/<[^>]*>/g, '');
+                            }
+
+                            function handleCopy(text) {
+                                try {
+                                    navigator.clipboard.writeText(stripHtml(text));
+                                } catch (e) {
+                                    console.error('Copy failed', e);
+                                }
+                            }
+
+                            function handleEdit(text) {
+                                // Put the stripped text into the bottom input for editing
+                                setInput(stripHtml(text));
+                            }
+
+                            return messages.map((m, i) => {
+                                const isLastUserMsg = m.role === 'user' && i === lastUserIndex;
+                                const isGreeting =
+                                    m.role === 'assistant' &&
+                                    typeof m.content === 'string' &&
+                                    m.content.includes('greeting-block');
+
+                                // Special render for greeting: centered big block, no toolbar
+                                if (isGreeting) {
+                                    return (
+                                        <div key={i} className="message assistant" style={{ alignItems: 'center', width: '100%' }}>
+                                            <div
+                                                dangerouslySetInnerHTML={{ __html: m.content }}
+                                            />
                                         </div>
-                                        {isLastUserMsg && (
-                                            <div className="message-toolbar">
-                                                <button className="icon-btn" title="Copy">📋</button>
-                                                <button className="icon-btn" title="Edit">✏️</button>
+                                    );
+                                }
+
+                                // Normal messages
+                                return (
+                                    <div key={i} className={`message ${m.role}`}>
+                                        <div className="message-content-wrapper">
+                                            <div className="message-bubble">
+                                                <div className="message-content">
+                                                    {m.content}
+                                                </div>
                                             </div>
-                                        )}
+                                            {isLastUserMsg && (
+                                                <div className="message-toolbar">
+                                                    <button
+                                                        className="icon-btn"
+                                                        title="Copy"
+                                                        onClick={() => handleCopy(m.content)}
+                                                    >
+                                                        📋
+                                                    </button>
+                                                    <button
+                                                        className="icon-btn"
+                                                        title="Edit"
+                                                        onClick={() => handleEdit(m.content)}
+                                                    >
+                                                        ✏️
+                                                    </button>
+                                                </div>
+                                            )}
+                                        </div>
                                     </div>
-                                </div>
-                            );
-                        })}
+                                );
+                            });
+                        })()}
                     </div>
+
                     <div className="input-area">
                         <div className="input-row">
                             <input type="text" placeholder="Ask about your files..." value={input} onChange={e => setInput(e.target.value)} onKeyPress={e => e.key === 'Enter' && sendQuery(input)} />
