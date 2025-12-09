@@ -1,0 +1,766 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width,initial-scale=1" />
+        <title>Local AI — Archived Static UI</title>
+    </head>
+    <body style="font-family:Segoe UI, system-ui; padding:24px; background:#0b1220; color:#e5e7eb;">
+        <h2>Old static UI archived</h2>
+        <p>This repository now uses the React/Vite frontend in <code>frontend/</code>. The previous static UI has been archived.</p>
+        <p>To run the current UI locally:</p>
+        <ul>
+            <li>Start the backend: <code>cd backend; python -m uvicorn app_simple:app --host 127.0.0.1 --port 8000</code></li>
+            <li>Start the React dev server: <code>cd frontend; npm install; npm run dev</code></li>
+        </ul>
+        <p>Archived content moved to <code>archive/removed_docs/OLD_INDEX.html</code>.</p>
+    </body>
+</html>
+
+        .chat-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid rgba(229, 231, 235, 0.5);
+            background: rgba(249, 250, 251, 0.85);
+        }
+
+        .sources-panel {
+            width: 280px;
+            background: linear-gradient(180deg, rgba(15, 23, 42, 0.95), rgba(30, 64, 175, 0.95));
+            display: flex;
+            flex-direction: column;
+            border-left: 1px solid rgba(15, 23, 42, 0.9);
+            color: #e5e7eb;
+        }
+
+        .header {
+            padding: 18px 22px;
+            background: rgba(255, 255, 255, 0.92);
+            border-bottom: 1px solid rgba(229, 231, 235, 0.8);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(18px);
+        }
+
+        .header h1 {
+            font-size: 22px;
+            color: #111827;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .header h1 span {
+            font-size: 26px;
+        }
+
+        .header-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 999px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.18s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #6366f1, #22c1c3);
+            color: white;
+            box-shadow: 0 8px 20px rgba(99, 102, 241, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 12px 26px rgba(79, 70, 229, 0.55);
+            filter: brightness(1.05);
+        }
+
+        .btn-primary:disabled {
+            background: #9ca3af;
+            box-shadow: none;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 18px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .message {
+            display: flex;
+            gap: 10px;
+            animation: slideIn 0.25s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(6px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message.user {
+            justify-content: flex-end;
+        }
+
+        .message-content {
+            max-width: 72%;
+            padding: 10px 14px;
+            border-radius: 14px;
+            word-wrap: break-word;
+            line-height: 1.55;
+            font-size: 14px;
+        }
+
+        .user .message-content {
+            background: linear-gradient(135deg, #4f46e5, #0ea5e9);
+            color: white;
+        }
+
+        .assistant .message-content {
+            background: rgba(255, 255, 255, 0.96);
+            color: #111827;
+            border: 1px solid rgba(209, 213, 219, 0.7);
+        }
+
+        .assistant .message-content code {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            background: #111827;
+            color: #e5e7eb;
+            padding: 2px 4px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        .assistant .message-content pre {
+            background: #111827;
+            color: #e5e7eb;
+            padding: 10px 12px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-size: 12px;
+            margin-top: 8px;
+        }
+
+        .loading {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #6b7280;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border: 2px solid #e5e7eb;
+            border-top-color: #667eea;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .input-area {
+            padding: 16px 20px;
+            background: rgba(255, 255, 255, 0.94);
+            border-top: 1px solid rgba(229, 231, 235, 0.8);
+            display: flex;
+            gap: 10px;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            flex: 1;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 12px 16px;
+            border: 1px solid rgba(209, 213, 219, 0.85);
+            border-radius: 999px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: all 0.16s ease;
+            background: rgba(249, 250, 251, 0.9);
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.35);
+            background: #ffffff;
+        }
+
+        input[type="text"]::placeholder {
+            color: #9ca3af;
+        }
+
+        .sources-header {
+            padding: 14px 16px;
+            background: rgba(15, 23, 42, 0.98);
+            border-bottom: 1px solid rgba(30, 64, 175, 0.9);
+            font-weight: 600;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .sources-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 12px;
+        }
+
+        .source-item {
+            padding: 9px 10px;
+            margin-bottom: 8px;
+            background: rgba(15, 23, 42, 0.85);
+            border-radius: 10px;
+            border: 1px solid rgba(129, 140, 248, 0.7);
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.18s ease;
+            overflow: hidden;
+        }
+
+        .source-item:hover {
+            background: rgba(30, 64, 175, 0.95);
+            box-shadow: 0 4px 10px rgba(15, 23, 42, 0.7);
+            transform: translateY(-1px);
+        }
+
+        .source-path {
+            color: #e5e7eb;
+            font-weight: 500;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .source-preview {
+            color: #9ca3af;
+            font-size: 11px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .status {
+            padding: 12px 16px;
+            font-size: 12px;
+            color: #9ca3af;
+            text-align: center;
+        }
+
+        .error {
+            color: #b91c1c;
+            background: #fee2e2;
+            padding: 10px 12px;
+            border-radius: 10px;
+            margin: 8px 0;
+            font-size: 13px;
+        }
+
+        /* Modal styles */
+        .modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(2,6,23,0.6);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1200;
+        }
+
+        .modal {
+            background: rgba(255,255,255,0.06);
+            border-radius: 12px;
+            padding: 18px;
+            width: 90%;
+            max-width: 920px;
+            box-shadow: 0 24px 60px rgba(2,6,23,0.7);
+            border: 1px solid rgba(255,255,255,0.08);
+            color: #e5e7eb;
+        }
+
+        .modal .modal-actions { display:flex; gap:8px; justify-content:flex-end; margin-top:12px }
+        .modal iframe { width:100%; height:70vh; border-radius:8px; border: none }
+
+        .success {
+            color: #047857;
+            background: #dcfce7;
+            padding: 10px 12px;
+            border-radius: 10px;
+            margin: 8px 0;
+            font-size: 13px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+                height: 100%;
+            }
+
+            .sources-panel {
+                width: 100%;
+                height: 200px;
+                border-left: none;
+                border-top: 1px solid rgba(15, 23, 42, 0.85);
+            }
+
+            .message-content {
+                max-width: 90%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="chat-panel">
+            <div class="header">
+                <h1><span>🤖</span> Local AI Assistant</h1>
+                <div class="header-buttons">
+                    <button class="btn-primary" id="reindexBtn" onclick="reindexFiles()">Reindex Files</button>
+                </div>
+            </div>
+
+            <div class="messages" id="messages">
+                <div class="message assistant">
+                    <div class="message-content">
+                        👋 Welcome! I'm your local AI file assistant.
+                        <br><br>
+                        <strong>What I can do:</strong>
+                        <ul style="margin-left: 18px; margin-top: 8px;">
+                            <li>Search across PDFs, Word docs, and text files</li>
+                            <li>List matching files with paths & timestamps</li>
+                            <li>Summarize individual files on click</li>
+                        </ul>
+                        <br><strong>Tips:</strong>
+                        <ul style="margin-left: 18px;">
+                            <li>Click <code>Reindex Files</code> after you add or move documents</li>
+                            <li>Ask things like <code>where are my resumes</code></li>
+                            <li>Click a file in <strong>Sources</strong> to get a summary</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="input-area">
+                <div class="input-group">
+                    <input type="text" id="queryInput" placeholder="Ask me anything about your files..." onkeypress="handleKeyPress(event)">
+                    <button class="btn-primary" id="sendBtn" onclick="askFromInput()" style="min-width: 100px;">Send</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="sources-panel">
+            <div class="sources-header">📄 Sources</div>
+            <div class="sources-list" id="sourcesList">
+                <div class="status">No results yet. Ask a question to see matching files.</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://127.0.0.1:8000';
+
+        // ---------- Core send function ----------
+        async function sendQuery(query, showAsUser = true) {
+            if (!query) return;
+
+            const inputEl = document.getElementById('queryInput');
+            const sendBtn = document.getElementById('sendBtn');
+
+            if (showAsUser) {
+                addMessage('user', query);
+            }
+
+            sendBtn.disabled = true;
+
+            // Loading bubble
+            const loadingId = addMessage(
+                'assistant',
+                '<div class="loading"><span class="spinner"></span>Thinking...</div>'
+            );
+
+            try {
+                const response = await fetch(`${API_BASE}/ask`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`API error: ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                removeMessage(loadingId);
+
+                // Render assistant answer, converting triple-backtick code blocks
+                const containerId = renderAssistantAnswer(data.answer);
+
+                // If the response included a `markdown` table (from /search), render it as a pre block
+                if (data.markdown) {
+                    const md = data.markdown;
+                    const m = md.match(/```(?:text)?\r?\n([\s\S]*?)```/);
+                    const code = m ? m[1] : md;
+                    const container = document.getElementById(containerId).querySelector('.message-content');
+                    const pre = document.createElement('pre');
+                    pre.textContent = code;
+                    container.appendChild(pre);
+                }
+
+                displaySources(data.sources || data.results || []);
+            } catch (error) {
+                removeMessage(loadingId);
+                addMessage('assistant', `<div class="error">❌ Error: ${error.message}</div>`);
+            } finally {
+                sendBtn.disabled = false;
+                inputEl.focus();
+            }
+        }
+
+        // Wrapper for typing in the box
+        function askFromInput() {
+            const input = document.getElementById('queryInput');
+            const query = input.value.trim();
+            if (!query) return;
+            input.value = '';
+            sendQuery(query, true);
+        }
+
+        // ---------- Reindex ----------
+        async function reindexFiles() {
+            const btn = document.getElementById('reindexBtn');
+            btn.disabled = true;
+            btn.textContent = 'Reindexing...';
+
+            try {
+                const response = await fetch(`${API_BASE}/reindex`, { method: 'POST' });
+                const data = await response.json();
+
+                if (data.status === 'ok') {
+                    const files = data.files_indexed ?? 0;
+                    const chunks = data.chunks_indexed ?? 0;
+                    addMessage(
+                        'assistant',
+                        `<div class="success">✅ Reindexed successfully! Indexed <strong>${files}</strong> files and <strong>${chunks}</strong> chunks under <code>${data.file_search_root}</code>.</div>`
+                    );
+                } else {
+                    addMessage('assistant', `<div class="error">❌ Reindex failed: ${data.error || 'Unknown error'}</div>`);
+                }
+            } catch (error) {
+                addMessage('assistant', `<div class="error">❌ Error: ${error.message}</div>`);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Reindex Files';
+            }
+        }
+
+        // ---------- Messages ----------
+        function addMessage(role, content) {
+            const messagesDiv = document.getElementById('messages');
+            const messageEl = document.createElement('div');
+            const id = 'msg-' + Date.now() + '-' + Math.random().toString(36).slice(2);
+            messageEl.id = id;
+            messageEl.className = `message ${role}`;
+
+            const contentEl = document.createElement('div');
+            contentEl.className = 'message-content';
+            contentEl.innerHTML = content;
+
+            messageEl.appendChild(contentEl);
+            messagesDiv.appendChild(messageEl);
+
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+
+            return id;
+        }
+
+        function removeMessage(id) {
+            const el = document.getElementById(id);
+            if (el) el.remove();
+        }
+
+        // ---------- Sources panel ----------
+        function displaySources(sources) {
+            const sourcesList = document.getElementById('sourcesList');
+
+            if (!sources || sources.length === 0) {
+                sourcesList.innerHTML = '<div class="status">No sources found for this question.</div>';
+                return;
+            }
+
+            sourcesList.innerHTML = '';
+
+            sources.forEach((source, idx) => {
+                const item = document.createElement('div');
+                item.className = 'source-item';
+
+                const fileName = (source.name || source.path.split(/[\\\/]/).pop());
+                const dir = source.directory || '';
+                const sizeKB = ((source.size_bytes || 0) / 1024).toFixed(1);
+                const created = source.created || '';
+                const modified = source.modified || '';
+
+                item.innerHTML = `
+                    <div class="source-path">${idx + 1}. ${escapeHtml(fileName)}</div>
+                    <div class="source-preview">${escapeHtml(source.path)}</div>
+                    <div style="margin-top:8px; font-size:12px; color:#9ca3af; display:flex; gap:8px;">
+                      <div>Type: <strong style="color:#e5e7eb">${escapeHtml(source.type||'other')}</strong></div>
+                      <div>Size: <strong style="color:#e5e7eb">${sizeKB} KB</strong></div>
+                      <div>Why: <strong style="color:#a7f3d0">${escapeHtml(source.reason || '')}</strong></div>
+                    </div>
+                    <div style="margin-top:8px; display:flex; gap:8px;">
+                      <button class="btn-primary" style="padding:6px 10px; font-size:12px;" onclick="event.stopPropagation(); analyzeSource('${escapeJs(source.path)}', this)">Analyze</button>
+                      <button style="padding:6px 10px; font-size:12px; background:#0ea5e9; color:#fff; border:none; border-radius:999px;" onclick="event.stopPropagation(); confirmOpen('${escapeJs(source.path)}', this)">Open</button>
+                      <button style="padding:6px 10px; font-size:12px; background:#111827; color:#e5e7eb; border:none; border-radius:999px;" onclick="event.stopPropagation(); showPreview('${escapeJs(source.path)}')">Preview</button>
+                    </div>
+                    <div class="source-summary" id="summary-${idx}" style="margin-top:10px; font-size:13px; color:#e5e7eb;"></div>
+                `;
+
+                // Click on the whole item also analyzes the file
+                item.onclick = () => analyzeSource(source.path);
+
+                sourcesList.appendChild(item);
+            });
+        }
+
+        // Analyze a source (calls /analyze_file) and show summary inside the source item
+        async function analyzeSource(path, btn) {
+            const itemEl = btn ? btn.closest('.source-item') : null;
+            const summaryDiv = itemEl ? itemEl.querySelector('.source-summary') : null;
+
+            const loadingId = addMessage('assistant', '<div class="loading"><span class="spinner"></span>Analyzing file...</div>');
+            try {
+                const resp = await fetch(`${API_BASE}/analyze_file`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ path })
+                });
+                if (!resp.ok) throw new Error(`Analyze API error: ${resp.status}`);
+                const data = await resp.json();
+                removeMessage(loadingId);
+                const summary = data.summary || 'No summary available.';
+                if (summaryDiv) {
+                    summaryDiv.innerHTML = `<pre style="white-space:pre-wrap; background:#0f1724; padding:10px; border-radius:8px;">${escapeHtml(summary)}</pre>`;
+                } else {
+                    addMessage('assistant', `<pre>${escapeHtml(summary)}</pre>`);
+                }
+            } catch (err) {
+                removeMessage(loadingId);
+                addMessage('assistant', `<div class="error">❌ Analyze failed: ${err.message}</div>`);
+            }
+        }
+
+        // Open a source using /open_file (server-side os.startfile)
+        async function openSource(path, btn) {
+            try {
+                const resp = await fetch(`${API_BASE}/open_file`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ path })
+                });
+                const data = await resp.json();
+                if (data && data.status === 'ok') {
+                    addMessage('assistant', `<div class="success">Opened: ${escapeHtml(path)}</div>`);
+                } else {
+                    addMessage('assistant', `<div class="error">Failed to open file.</div>`);
+                }
+            } catch (err) {
+                addMessage('assistant', `<div class="error">Failed to open file: ${err.message}</div>`);
+            }
+        }
+
+                // Confirmation modal flow for opening files
+                function confirmOpen(path, btn) {
+                        // create backdrop if not exist
+                        let backdrop = document.getElementById('confirm-backdrop');
+                        if (!backdrop) {
+                                backdrop = document.createElement('div');
+                                backdrop.id = 'confirm-backdrop';
+                                backdrop.className = 'modal-backdrop';
+                                backdrop.innerHTML = `
+                                    <div class="modal" role="dialog">
+                                        <div style="font-weight:700; font-size:16px;">Open file on your computer?</div>
+                                        <div style="margin-top:8px; color:#cbd5e1">Are you sure you want to open this file from the local disk?<br><small style="color:#9ca3af">Path: ${escapeHtml(path)}</small></div>
+                                        <div class="modal-actions">
+                                            <button id="confirm-no" style="padding:8px 12px; border-radius:8px; background:transparent; border:1px solid rgba(255,255,255,0.06); color:#e5e7eb">Cancel</button>
+                                            <button id="confirm-yes" class="btn-primary" style="padding:8px 12px; border-radius:8px;">Open</button>
+                                        </div>
+                                    </div>
+                                `;
+                                document.body.appendChild(backdrop);
+                        }
+
+                        backdrop.style.display = 'flex';
+                        document.getElementById('confirm-yes').onclick = async () => {
+                                backdrop.style.display = 'none';
+                                await openSource(path, btn);
+                        };
+                        document.getElementById('confirm-no').onclick = () => { backdrop.style.display = 'none'; };
+                }
+
+                // Preview modal to show PDF or other content via /file_stream
+                function showPreview(path) {
+                        let backdrop = document.getElementById('preview-backdrop');
+                        if (!backdrop) {
+                                backdrop = document.createElement('div');
+                                backdrop.id = 'preview-backdrop';
+                                backdrop.className = 'modal-backdrop';
+                                backdrop.innerHTML = `
+                                    <div class="modal">
+                                        <div style="display:flex; justify-content:space-between; align-items:center; gap:12px;">
+                                            <div style="font-weight:700;">Preview</div>
+                                            <div><button id="preview-close" style="background:transparent; border:none; color:#e5e7eb; font-size:18px;">✕</button></div>
+                                        </div>
+                                        <div style="margin-top:12px;"><iframe id="preview-iframe" src="" /></div>
+                                    </div>
+                                `;
+                                document.body.appendChild(backdrop);
+                                document.getElementById('preview-close').onclick = () => { backdrop.style.display = 'none'; };
+                        }
+
+                        const iframe = document.getElementById('preview-iframe');
+                        iframe.src = `${API_BASE}/file_stream?path=${encodeURIComponent(path)}`;
+                        backdrop.style.display = 'flex';
+                }
+
+        // Render assistant answer and convert triple-backtick code blocks to <pre>
+        function renderAssistantAnswer(raw) {
+            if (!raw) return null;
+            // Detect ```text ... ``` or ``` ... ``` (allow CRLF or LF)
+            const codeBlockRegex = /```(?:text)?\r?\n([\s\S]*?)```/g;
+            let lastIndex = 0;
+            let match;
+
+            const containerId = addMessage('assistant', '');
+            const container = document.getElementById(containerId).querySelector('.message-content');
+
+            while ((match = codeBlockRegex.exec(raw)) !== null) {
+                const before = raw.slice(lastIndex, match.index);
+                if (before.trim()) {
+                    const p = document.createElement('div');
+                    p.innerHTML = before;
+                    container.appendChild(p);
+                }
+
+                const code = match[1];
+                const pre = document.createElement('pre');
+                pre.textContent = code;
+                container.appendChild(pre);
+
+                lastIndex = match.index + match[0].length;
+            }
+
+            const rest = raw.slice(lastIndex);
+            if (rest.trim()) {
+                const p = document.createElement('div');
+                p.innerHTML = rest;
+                container.appendChild(p);
+            }
+
+            return containerId;
+        }
+
+        // Helper to escape JS strings for inline onclick
+        function escapeJs(s) {
+            if (!s) return '';
+            return s.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+        }
+
+        // ---------- Utilities ----------
+        function escapeHtml(text) {
+            if (!text) return '';
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, m => map[m]);
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                askFromInput();
+            }
+        }
+
+        // ---------- Health checks ----------
+        async function checkBackend() {
+            try {
+                const response = await fetch(`${API_BASE}/health`, { timeout: 5000 });
+                if (response.ok) {
+                    addMessage('assistant', '<div class="success">✅ Connected to backend!</div>');
+                    setTimeout(checkOllama, 400);
+                } else {
+                    throw new Error(`Health check returned ${response.status}`);
+                }
+            } catch (error) {
+                addMessage(
+                    'assistant',
+                    `<div class="error">⚠️ Backend not reachable at ${API_BASE}.<br><br>` +
+                    `<strong>To fix:</strong><br>` +
+                    `1. Run backend: <code>cd backend && python app_simple.py</code><br>` +
+                    `2. Then refresh this page.</div>`
+                );
+            }
+        }
+
+        async function checkOllama() {
+            try {
+                const response = await fetch('http://localhost:11434/api/tags', { timeout: 5000 });
+                if (response.ok) {
+                    const data = await response.json();
+                    const models = data.models ? data.models.length : 0;
+                    addMessage('assistant', `<div class="success">✅ Ollama is ready! (${models} models available)</div>`);
+                } else {
+                    throw new Error(`Ollama returned ${response.status}`);
+                }
+            } catch (error) {
+                addMessage(
+                    'assistant',
+                    `<div class="error">⚠️ Ollama not reachable at http://localhost:11434.<br><br>` +
+                    `<strong>To fix:</strong><br>` +
+                    `1. Start Ollama: <code>ollama serve</code><br>` +
+                    `2. Pull a model: <code>ollama pull mistral</code><br>` +
+                    `3. Reindex files and try again.</div>`
+                );
+            }
+        }
+
+        // ---------- Init ----------
+        window.addEventListener('load', () => {
+            setTimeout(checkBackend, 500);
+            document.getElementById('queryInput').focus();
+        });
+    </script>
+</body>
+</html>

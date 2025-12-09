@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Local AI File Assistant</title>
+    <style>
+        * { box-sizing: border-box; }
+        body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif; background: #0b1220; color: #e5e7eb; }
+        .app-root { display: flex; height: 100vh; background: #0b1220; }
+        .container { display: flex; width: 100%; }
+        .chat-panel { flex: 1; display: flex; flex-direction: column; }
+        .header { padding: 20px; border-bottom: 1px solid rgba(255,255,255,0.03); background: #0f172a; }
+        .header h1 { margin: 0; font-size: 20px; font-weight: 600; }
+        .header .desc { font-size: 12px; color: #9ca3af; margin-top: 4px; }
+        .title-wrap { display: flex; gap: 12px; align-items: center; margin-bottom: 16px; }
+        .header-buttons { display: flex; gap: 12px; align-items: center; }
+        .btn-primary { padding: 8px 16px; background: #8b5cf6; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 12px; font-weight: 500; }
+        .btn-primary:hover { background: #7c3aed; }
+        select { padding: 8px; border-radius: 8px; border: 1px solid rgba(0,0,0,0.06); background: white; color: #0b1220; }
+        .messages { flex: 1; overflow-y: auto; padding: 20px; padding-bottom: 120px; }
+        .message { margin-bottom: 16px; display: flex; gap: 12px; animation: fadeIn 0.3s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; } }
+        .message.user { justify-content: flex-end; }
+        .message-bubble { max-width: 60%; padding: 12px 16px; border-radius: 12px; word-wrap: break-word; }
+        .message.assistant .message-bubble { background: #1e293b; color: #e5e7eb; }
+        .message.user .message-bubble { background: #8b5cf6; color: white; }
+        .message-timestamp { font-size: 11px; color: #6b7280; margin-top: 4px; text-align: right; }
+        .message-content { line-height: 1.5; }
+        .message-content pre { background: #0f172a; padding: 12px; border-radius: 8px; overflow-x: auto; color: #10b981; font-size: 12px; }
+        .message-content a { color: #3b82f6; text-decoration: underline; }
+                .message-content-wrapper { display: flex; flex-direction: column; gap: 0; }
+        .message-toolbar { display: flex; gap: 6px; margin-top: 8px; justify-content: flex-end; padding: 0; width: 100%; }
+        .icon-btn { background: transparent; border: none; color: #9ca3af; cursor: pointer; font-size: 12px; padding: 4px 8px; border-radius: 4px; }
+        .icon-btn:hover { background: rgba(255,255,255,0.1); color: #e5e7eb; }
+        .input-area { position: sticky; bottom: 0; padding: 16px; background: #0b1220; border-top: 1px solid rgba(255,255,255,0.03); z-index: 40; }
+        .input-row { display: flex; gap: 12px; }
+        input[type="text"] { flex: 1; padding: 12px; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; background: #1e293b; color: #e5e7eb; }
+        input[type="text"]:focus { outline: none; border-color: #8b5cf6; }
+        .sources-panel { width: 340px; background: linear-gradient(180deg,#0b1220,#10203a); padding: 12px; color: #e5e7eb; border-left: 1px solid rgba(255,255,255,0.03); display: flex; flex-direction: column; overflow: hidden; }
+        .sources-header { font-weight: 600; margin-bottom: 12px; }
+        .sources-list { overflow-y: auto; overflow-x: hidden; padding: 8px; flex: 1; max-height: 600px; }
+        .source-item { padding: 8px; border-radius: 6px; background: rgba(255,255,255,0.03); margin-bottom: 8px; font-size: 12px; cursor: pointer; }
+        .source-item:hover { background: rgba(255,255,255,0.06); }
+        .status { color: #6b7280; font-size: 12px; text-align: center; padding: 20px; }
+        .success { color: #10b981; padding: 12px; background: rgba(16,185,129,0.1); border-radius: 8px; }
+        .error { color: #ef4444; padding: 12px; background: rgba(239,68,68,0.1); border-radius: 8px; }
+        .muted { color: #9ca3af; font-size: 12px; }
+        .greeting-block { display: block; max-width: 660px; margin: 32px auto; padding: 26px 28px; border-radius: 16px; background: linear-gradient(180deg,#ffffff,#f3f4f6); color: #0b1220; box-shadow: 0 12px 30px rgba(2,6,23,0.45); text-align: left; }
+        .greeting-block strong { font-size: 18px; display: block; margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script>
+        const { useState, useEffect, useRef } = React;
+        const API_BASE = 'http://127.0.0.1:8000';
+
+        function Chat({ apiBase, selectedModel, addMessage, replaceLastAssistant, setSourceList, messages }) {
+            const [input, setInput] = useState('');
+            const [isLoading, setIsLoading] = useState(false);
+
+            async function sendQuery(q) {
+                if (!q.trim()) return;
+                const userMsg = { role: 'user', content: q };
+                addMessage(userMsg);
+                setInput('');
+                setIsLoading(true);
+                addMessage({ role: 'assistant', content: '💭 Thinking...' });
+                
+                try {
+                    // Handle "list all files" special command
+                    if (q.toLowerCase().includes('list all files') || q.toLowerCase() === 'list') {
+                        const resp = await fetch(`${apiBase}/list-all-files`, {
+                            method: 'GET',
+                            headers: { 'Content-Type': 'application/json' }
+                        });
+                        const data = await resp.json();
+                        const table = buildFileTable(data.files || []);
+                        replaceLastAssistant(`Found ${data.count || 0} readable files:\n\n` + table);
+                        setSourceList(data.files || []);
+                    } else {
+                        const resp = await fetch(`${apiBase}/ask`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ query: q, model: selectedModel })
+                        });
+                        const data = await resp.json();
+                        replaceLastAssistant(data.answer || 'No response');
+                        if (data.sources && data.sources.length) setSourceList(data.sources);
+                    }
+                } catch (e) {
+                    replaceLastAssistant(`❌ Error: ${e.message}`);
+                } finally {
+                    setIsLoading(false);
+                }
+            }
+
+            function buildFileTable(files) {
+                if (files.length === 0) return 'No files found.';
+                let table = 'Idx  Size(KB)  Created              Modified             Name\n';
+                table += '-'.repeat(70) + '\n';
+                files.slice(0, 100).forEach((f, i) => {
+                    const size = ((f.size_bytes || 0) / 1024).toFixed(1);
+                    const created = (f.created || '').substring(0, 19);
+                    const modified = (f.modified || '').substring(0, 19);
+                    const name = f.name || f.basename || 'unknown';
+                    table += `${String(i+1).padStart(3)}  ${String(size).padStart(8)}  ${created.padEnd(19)}  ${modified.padEnd(19)}  ${name}\n`;
+                });
+                return '```text\n' + table + '```';
+            }
+
+            return (
+                <div className="chat-panel">
+                    <div className="messages">
+                        {messages.map((m, i) => {
+                            const lastUserIndex = messages.map((x, idx) => x.role === 'user' ? idx : -1).filter(x => x >= 0).pop();
+                            const isLastUserMsg = m.role === 'user' && i === lastUserIndex;
+                            return (
+                                <div key={i} className={`message ${m.role}`}>
+                                    <div className="message-content-wrapper">
+                                        <div className="message-bubble">
+                                            <div className="message-content">{m.content}</div>
+                                        </div>
+                                        {isLastUserMsg && (
+                                            <div className="message-toolbar">
+                                                <button className="icon-btn" title="Copy">📋</button>
+                                                <button className="icon-btn" title="Edit">✏️</button>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
+                    <div className="input-area">
+                        <div className="input-row">
+                            <input type="text" placeholder="Ask about your files..." value={input} onChange={e => setInput(e.target.value)} onKeyPress={e => e.key === 'Enter' && sendQuery(input)} />
+                            <button className="btn-primary" onClick={() => sendQuery(input)} disabled={isLoading}>Send</button>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        function Sources({ apiBase, selectedModel, sources, addMessage }) {
+            const [filter, setFilter] = useState('');
+            
+            return (
+                <div className="sources-panel">
+                    <div className="sources-header">📄 Sources</div>
+                    <input placeholder="Filter..." value={filter} onChange={e => setFilter(e.target.value)} style={{width:'100%',padding:8,borderRadius:8,border:'1px solid rgba(255,255,255,0.1)',background:'transparent',color:'#e5e7eb',marginBottom:8}} />
+                    <div className="sources-list">
+                        {(!sources || sources.length === 0) && <div className="status">No results yet</div>}
+                        {sources && sources.filter(s => !filter || (s.name||'').toLowerCase().includes(filter.toLowerCase())).map((s, i) => (
+                            <div key={i} className="source-item" title={s.path}>{s.name || 'File'}</div>
+                        ))}
+                    </div>
+                </div>
+            );
+        }
+
+        function App() {
+            const [messages, setMessages] = useState([{
+                role: 'assistant',
+                content: '<div class="greeting-block"><strong>Hello — I\'m your Local AI Assistant.</strong><div style="font-size:13px;color:#0b1220;line-height:1.5">I can search your files, summarize PDFs and text files, preview documents, and open files on your computer. Ask me anything about your files or just chat with me about general topics. <br/><br/><strong>💡 Tip:</strong> Type "list all files" to see all indexed files.</div></div>'
+            }]);
+            const [sources, setSources] = useState([]);
+            const [model, setModel] = useState('tinyllama');
+
+            function addMessage(msg) {
+                setMessages(m => [...m, msg]);
+            }
+
+            function replaceLastAssistant(newContent) {
+                setMessages(m => {
+                    const copy = [...m];
+                    for (let i = copy.length - 1; i >= 0; i--) {
+                        if (copy[i].role === 'assistant') {
+                            copy[i] = { ...copy[i], content: newContent };
+                            break;
+                        }
+                    }
+                    return copy;
+                });
+            }
+
+            return (
+                <div className="app-root">
+                    <div className="container">
+                        <div className="chat-panel">
+                            <div className="header">
+                                <div className="title-wrap">
+                                    <div style={{fontSize:28}}>🤖</div>
+                                    <div><h1>Local AI Assistant</h1><div className="desc">Search files, summarize PDFs, preview & open results locally.</div></div>
+                                </div>
+                                <div className="header-buttons">
+                                    <select value={model} onChange={e => setModel(e.target.value)} style={{padding:8,borderRadius:8,border:'1px solid #ccc'}}>
+                                        <option value="tinyllama">tinyllama</option>
+                                        <option value="mistral">mistral</option>
+                                        <option value="gpt-4o-mini">gpt-4o-mini</option>
+                                    </select>
+                                    <button className="btn-primary" onClick={async () => {
+                                        try {
+                                            const r = await fetch(`${API_BASE}/reindex`, { method: 'POST' });
+                                            const data = await r.json();
+                                            addMessage({ role: 'assistant', content: `<div class='success'>✅ Reindexed ${data.files_indexed} files</div>` });
+                                        } catch (e) {
+                                            addMessage({ role: 'assistant', content: `<div class='error'>Reindex failed: ${e.message}</div>` });
+                                        }
+                                    }}>Reindex Files</button>
+                                </div>
+                            </div>
+                            <Chat apiBase={API_BASE} selectedModel={model} addMessage={addMessage} replaceLastAssistant={replaceLastAssistant} setSourceList={setSources} messages={messages} />
+                        </div>
+                        <Sources apiBase={API_BASE} selectedModel={model} sources={sources} addMessage={addMessage} />
+                    </div>
+                </div>
+            );
+        }
+
+        ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+    </script>
+</body>
+</html>
